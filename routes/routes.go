@@ -33,7 +33,7 @@ func NewMacaron() *macaron.Macaron {
 func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/", Authenticate, Home)
 	m.Get("/search", Authenticate, Search)
-	m.Get("/movie", Authenticate, Movie)
+	m.Get("/movie/details", Authenticate, MovieDetails)
 
 	m.Post("/login", binding.Bind(LoginForm{}), Login)
 	m.Get("/logout", Logout)
@@ -112,8 +112,8 @@ func Search(ctx *macaron.Context) {
 	ctx.HTML(http.StatusOK, "search_result", searchResp)
 }
 
-// Movie will fetch the movie details
-func Movie(ctx *macaron.Context) {
+// MovieDetails will fetch the movie details
+func MovieDetails(ctx *macaron.Context) {
 	log := logger.GetLogger()
 	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "movie details")
 
