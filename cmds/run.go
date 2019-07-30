@@ -7,7 +7,7 @@ import (
 func NewCmdRun() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "run",
-		Short:             "Launch pos",
+		Short:             "Launch app",
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return nil
