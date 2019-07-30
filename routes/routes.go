@@ -39,12 +39,12 @@ func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/logout", Logout)
 }
 
-func Logout(sess session.Store, m *macaron.Context) {
-	sess.Destroy(ctx)
+func Logout(sess session.Store, ctx *macaron.Context) {
+	sess.Destory(ctx)
 	ctx.Redirect("/login")
 }
 
-func Login(login LoginForm, sess session.Store, m *macaron.Context) {
+func Login(login LoginForm, sess session.Store, ctx *macaron.Context) {
 	var userID string
 	if login.UserID == "user1" && login.Password == "pass1" {
 		userID = "user1"
@@ -82,7 +82,7 @@ func Search(ctx *macaron.Context) {
 	s := ctx.Req.URL.Query().Get("s")
 	if len(s) == 0 {
 		err := errors.New("search value is not provided")
-		log.Error(err)
+		log.Error(err, "failed to search movie")
 		ctx.HTML(http.StatusBadRequest, "search_error", map[string]string{
 			"error":   err.Error(),
 			"keyword": s,
@@ -91,17 +91,17 @@ func Search(ctx *macaron.Context) {
 	}
 
 	page := ctx.Req.URL.Query().Get("page")
-	if len(pageNo) == 0 {
+	if len(page) == 0 {
 		page = "1"
 	}
 
-	searchResp, status, err := omdb.SearchMovie(s, pageNo)
+	searchResp, status, err := omdb.SearchMovie(s, page)
 	if searchResp != nil && searchResp.Error != "" {
 		status = http.StatusBadRequest
 		err = errors.New(searchResp.Error)
 	}
 	if err != nil {
-		log.Error(err)
+		log.Error(err, "failed to search movie")
 		ctx.HTML(status, "search_error", map[string]string{
 			"error":   err.Error(),
 			"keyword": s,
@@ -120,7 +120,7 @@ func Movie(ctx *macaron.Context) {
 	imdbID := ctx.Req.URL.Query().Get("i")
 	if len(imdbID) == 0 {
 		err := errors.New("imdb id is not provided")
-		log.Error(err)
+		log.Error(err, "failed to get movie details")
 		ctx.HTML(http.StatusBadRequest, "movie_details_error", map[string]string{
 			"error": err.Error(),
 		})
@@ -133,8 +133,8 @@ func Movie(ctx *macaron.Context) {
 		err = errors.New(movieDetails.Error)
 	}
 	if err != nil {
-		log.Error(err)
-		ctx.HTML(http.StatusBadRequest, "movie_details_error", map[string]string{
+		log.Error(err, "failed to get movie details")
+		ctx.HTML(status, "movie_details_error", map[string]string{
 			"error": err.Error(),
 		})
 		return
