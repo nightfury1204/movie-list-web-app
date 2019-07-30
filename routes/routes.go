@@ -27,6 +27,7 @@ func NewMacaron() *macaron.Macaron {
 func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/", Authenticate, Home)
 	m.Get("/search", Authenticate, Search)
+	m.Get("/movie", Authenticate, Movie)
 }
 
 func Authenticate(sess session.Store, ctx *macaron.Context) {
@@ -42,6 +43,7 @@ func Home(ctx *macaron.Context) {
 	ctx.HTML(http.StatusOK, "home")
 }
 
+// Search will fetch the movie search results
 func Search(ctx *macaron.Context) {
 	log := logger.GetLogger()
 	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "search")
@@ -75,4 +77,33 @@ func Search(ctx *macaron.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "search_result", searchResp)
+}
+
+// Movie will fetch the movie details
+func Movie(ctx *macaron.Context) {
+	log := logger.GetLogger()
+	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "movie details")
+
+	imdbID := ctx.Req.URL.Query().Get("i")
+	if len(imdbID) == 0 {
+		err := errors.New("imdb id is not provided")
+		log.Error(err)
+		ctx.HTML(http.StatusBadRequest, "movie_details_error", map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	movieDetails, status, err := omdb.GetMovieDetails(imdbID)
+	if movieDetails != nil && movieDetails.Error != "" {
+		status = http.StatusBadRequest
+		err = errors.New(movieDetails.Error)
+	}
+	if err != nil {
+		log.Error(err))
+		ctx.HTML(http.StatusBadRequest, "movie_details_error", map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.HTML(http.StatusOK, "movie_details", movieDetails)
 }
