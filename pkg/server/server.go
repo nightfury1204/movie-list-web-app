@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/nightfury1204/movie-search-app/pkg/logger"
+	"github.com/nightfury1204/movie-search-app/pkg/omdb"
 	"github.com/pkg/errors"
 )
 
@@ -18,7 +19,9 @@ func Run(cfg *Config) error {
 	if cfg == nil {
 		return errors.New("provided config is nil")
 	}
-	log := logger.GetLogger()
+
+	// initialize omdb client
+	omdb.Initialize(cfg.OMDBAPIUrl, cfg.OMDBAPIToken)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", cfg.Port),
@@ -33,6 +36,7 @@ func Run(cfg *Config) error {
 			panic(err)
 		}
 	}()
+	log := logger.GetLogger()
 	log.Info("Server Started", "listening port", cfg.Port)
 
 	<-cfg.StopCh

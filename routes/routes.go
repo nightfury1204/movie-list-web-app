@@ -3,7 +3,11 @@ package routes
 import (
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-macaron/session"
+	"github.com/nightfury1204/movie-search-app/pkg/logger"
+	"github.com/nightfury1204/movie-search-app/pkg/omdb"
 	"gopkg.in/macaron.v1"
 )
 
@@ -39,5 +43,36 @@ func Home(ctx *macaron.Context) {
 }
 
 func Search(ctx *macaron.Context) {
-	ctx.Params
+	log := logger.GetLogger()
+	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "search")
+
+	s := ctx.Req.URL.Query().Get("s")
+	if len(s) == 0 {
+		err := errors.New("search value is not provided")
+		log.Error(err)
+		ctx.HTML(http.StatusBadRequest, "search_error", map[string]string{
+			"error":   err.Error(),
+			"keyword": s,
+		})
+	}
+
+	page := ctx.Req.URL.Query().Get("page")
+	if len(pageNo) == 0 {
+		page = "1"
+	}
+
+	searchResp, status, err := omdb.SearchMovie(s, pageNo)
+	if searchResp != nil && searchResp.Error != "" {
+		status = http.StatusBadRequest
+		err = errors.New(searchResp.Error)
+	}
+	if err != nil {
+		log.Error(err)
+		ctx.HTML(status, "search_error", map[string]string{
+			"error":   err.Error(),
+			"keyword": s,
+		})
+	}
+
+	ctx.HTML(http.StatusOK, "search_result", searchResp)
 }
