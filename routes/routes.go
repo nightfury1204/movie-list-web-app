@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/nightfury1204/movie-search-app/models"
 
@@ -126,7 +127,29 @@ func Search(ctx *macaron.Context) {
 		return
 	}
 
-	ctx.HTML(http.StatusOK, "search_result", searchResp)
+	tempateData := struct {
+		Search []omdb.MovieItem
+		CurrentPage string
+		PreviousPage string
+		NextPage string
+		Keyword string
+	}{
+		Search: searchResp.Search,
+		Keyword: s,
+		CurrentPage: page,
+	}
+
+	pageNo, err := strconv.Atoi(page)
+	if err != nil {
+		log.Error(err, "failed convert string to integer")
+	} else if pageNo > 1 {
+		tempateData.PreviousPage = strconv.Itoa(pageNo-1)
+	}
+	if len(searchResp.Search) > 0 {
+		tempateData.NextPage = strconv.Itoa(pageNo+1)
+	}
+
+	ctx.HTML(http.StatusOK, "search_result", tempateData)
 }
 
 // MovieDetails will fetch the movie details
