@@ -1,0 +1,33 @@
+# github.com/Unknwon/com v0.0.0-20190321035513-0fed4efef755
+github.com/Unknwon/com
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/go-logr/logr v0.1.0
+github.com/go-logr/logr
+# github.com/go-macaron/binding v0.0.0-20170611065819-ac54ee249c27
+github.com/go-macaron/binding
+# github.com/go-macaron/inject v0.0.0-20160627170012-d8a0b8677191
+github.com/go-macaron/inject
+# github.com/go-macaron/session v0.0.0-20190131233854-0a0a789bf193
+github.com/go-macaron/session
+# github.com/inconshreveable/mousetrap v1.0.0
+github.com/inconshreveable/mousetrap
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/spf13/cobra v0.0.3
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.3
+github.com/spf13/pflag
+# github.com/stretchr/testify v1.3.0
+github.com/stretchr/testify/assert
+# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+golang.org/x/crypto/pbkdf2
+# gopkg.in/ini.v1 v1.42.0
+gopkg.in/ini.v1
+# gopkg.in/macaron.v1 v1.3.2
+gopkg.in/macaron.v1
+# k8s.io/klog v0.3.3
+k8s.io/klog
+k8s.io/klog/klogr

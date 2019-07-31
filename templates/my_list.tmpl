@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {{ template "head" }}
+</head>
+
+<body>
+
+    {{ template "navbar" }}
+
+    <div class="container">
+      {{ range . }}
+          {{ template "my_movie_list" .}}
+      {{ end }}
+
+      {{ template "modal" . }}
+    </div>
+
+    <script>
+    function addItemToMyList(id) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById(id).innerHTML = "Added"
+        }
+      };
+      xhttp.open("POST", "/mylist/movies/"+id, true);
+      xhttp.send();
+    }
+
+     function showMovieDetails(id, title) {
+       var xhttp = new XMLHttpRequest();
+       xhttp.onreadystatechange = function() {
+         if (this.readyState == 4 && this.status == 200) {
+           document.getElementById("modalTitle").innerHTML = "<h3> <strong>" + title + "<\strong><\h3>";
+           document.getElementById("modalBody").innerHTML = this.responseText;
+         } else if( this.readyState == 4 ) {
+             document.getElementById("modalBody").innerHTML = this.responseText;
+         }
+       };
+       xhttp.open("GET", "/movie/details/"+id, true);
+       xhttp.send();
+     }
+    </script>
+
+</body>
+
+</html>

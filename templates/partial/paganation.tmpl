@@ -1,0 +1,17 @@
+{{ define "pagination" }}
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {{ if .PreviousPage }}
+      <li class="page-item"><a class="page-link" href="/search?s={{ .Keyword}}&page={{ .PreviousPage }}">Previous</a></li>
+    {{ end }}
+
+    <li class="page-item"><a class="page-link" href="/search?s={{ .Keyword}}&page={{ .CurrentPage }}"> {{ .CurrentPage }}</a></li>
+
+    {{ if .NextPage }}
+      <li class="page-item"><a class="page-link" href="/search?s={{ .Keyword}}&page={{ .NextPage }}">Next</a></li>
+    {{ end }}
+  </ul>
+</nav>
+
+{{ end }}

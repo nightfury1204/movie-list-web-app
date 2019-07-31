@@ -1,0 +1,18 @@
+{{ define "movie_item" }}
+
+<div class="container" style="border-bottom: .5px solid #e3e3dc;border-radius: 5px; padding: 10px 10px 20px 40px; margin:10px">
+  <div class="row"> 
+    <h3 style="text-decoration: underline;"> <a href="" onclick='showMovieDetails("{{ .ImdbID}}", "{{ .Title}}")' data-toggle="modal" data-target="#myModal"> {{ .Title }}</a></h3>
+  </div>
+  <div class="row">
+    <div class="col-sm-2" style="width: 125px;">
+      <img src="{{ .Poster }}" class="img-rounded" alt="{{ .Title }}" style="height: 120px;width: 100px;">
+    </div>
+
+    <div class="col-sm-2">
+      <button type="submit" class="btn btn-default" id="{{ .ImdbID }}" onclick='addItemToMyList("{{ .ImdbID}}")'>Add to my list</button>
+    </div>
+  </div>
+</div>
+
+{{ end }}
