@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"encoding/json"
+	"github.com/nightfury1204/movie-search-app/models"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -34,7 +36,19 @@ func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/", Authenticate, Home)
 	m.Get("/search", Authenticate, Search)
 	m.Get("/movie/details", Authenticate, MovieDetails)
+	
+	m.Group("/mylist/movies", func() {
+		m.Get("", GetMyMovieList)
+		m.Post("/:id", AddToMyMovieList)
+		m.Delete("/:id", RemoveFromMyMovieList)
+	}, Authenticate)
 
+	m.Group("/login", func() {
+		m.Post("", binding.Bind(LoginForm{}), Login)
+		m.Get("", func(ctx *macaron.Context) {
+			ctx.HTML(http.StatusOK, "login")
+		})
+	})
 	m.Post("/login", binding.Bind(LoginForm{}), Login)
 	m.Get("/logout", Logout)
 }
@@ -53,7 +67,9 @@ func Login(login LoginForm, sess session.Store, ctx *macaron.Context) {
 	} else if login.UserID == "user3" && login.Password == "pass3" {
 		userID = "user3"
 	} else {
-		ctx.HTML(http.StatusUnauthorized, "login_error")
+		ctx.HTML(http.StatusUnauthorized, "login", map[string]string{
+			"error": "invalid userid/password",
+		})
 		return
 	}
 	sess.Set(SessionIDKey, userID)
@@ -76,8 +92,7 @@ func Home(ctx *macaron.Context) {
 
 // Search will fetch the movie search results
 func Search(ctx *macaron.Context) {
-	log := logger.GetLogger()
-	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "search")
+	log := logger.GetLogger().WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "search")
 
 	s := ctx.Req.URL.Query().Get("s")
 	if len(s) == 0 {
@@ -114,8 +129,7 @@ func Search(ctx *macaron.Context) {
 
 // MovieDetails will fetch the movie details
 func MovieDetails(ctx *macaron.Context) {
-	log := logger.GetLogger()
-	log = log.WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "movie details")
+	log := logger.GetLogger().WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "movie details")
 
 	imdbID := ctx.Req.URL.Query().Get("i")
 	if len(imdbID) == 0 {
@@ -141,4 +155,40 @@ func MovieDetails(ctx *macaron.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "movie_details", movieDetails)
+}
+
+func GetMyMovieList(ctx *macaron.Context) {
+	userID := ctx.Data[UserIDKey].(string)
+	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "get my movie list")
+
+	log.V(3).Info("fetching movie list")
+	movieList := models.GetMyMovieList(userID)
+	ctx.HTML(http.StatusOK, "my_list", movieList)
+}
+
+func RemoveFromMyMovieList(ctx *macaron.Context)  {
+	userID := ctx.Data[UserIDKey].(string)
+	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "remove from my movie list")
+
+	imdbID := ctx.Params(":id")
+
+	log.V(3).Info("removing movie from the list", "imdbID", imdbID)
+	models.RemoveFromMyMovieList(userID, imdbID)
+	ctx.Redirect("/mylist/movies", http.StatusOK)
+}
+
+func AddToMyMovieList(ctx *macaron.Context)  {
+	userID := ctx.Data[UserIDKey].(string)
+	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "add to my movie list")
+
+	item := &omdb.MovieItem{}
+	r := ctx.Req.Request
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
+		log.Error(err, "failed to unmarshal movie item")
+		ctx.JSON(http.StatusBadRequest, "add_movie_failed")
+	}
+
+	log.V(3).Info("Adding movie in the list", "imdbID", item.ImdbID)
+	models.AddToMyMovieList(userID, *item)
 }
