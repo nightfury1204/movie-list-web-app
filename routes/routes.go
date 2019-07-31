@@ -2,8 +2,9 @@ package routes
 
 import (
 	"encoding/json"
-	"github.com/nightfury1204/movie-search-app/models"
 	"net/http"
+
+	"github.com/nightfury1204/movie-search-app/models"
 
 	"github.com/pkg/errors"
 
@@ -36,7 +37,7 @@ func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/", Authenticate, Home)
 	m.Get("/search", Authenticate, Search)
 	m.Get("/movie/details", Authenticate, MovieDetails)
-	
+
 	m.Group("/mylist/movies", func() {
 		m.Get("", GetMyMovieList)
 		m.Post("/:id", AddToMyMovieList)
@@ -166,7 +167,7 @@ func GetMyMovieList(ctx *macaron.Context) {
 	ctx.HTML(http.StatusOK, "my_list", movieList)
 }
 
-func RemoveFromMyMovieList(ctx *macaron.Context)  {
+func RemoveFromMyMovieList(ctx *macaron.Context) {
 	userID := ctx.Data[UserIDKey].(string)
 	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "remove from my movie list")
 
@@ -177,7 +178,7 @@ func RemoveFromMyMovieList(ctx *macaron.Context)  {
 	ctx.Redirect("/mylist/movies", http.StatusOK)
 }
 
-func AddToMyMovieList(ctx *macaron.Context)  {
+func AddToMyMovieList(ctx *macaron.Context) {
 	userID := ctx.Data[UserIDKey].(string)
 	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "add to my movie list")
 

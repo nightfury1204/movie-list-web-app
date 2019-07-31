@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/nightfury1204/movie-search-app/routes"
+
 	"github.com/nightfury1204/movie-search-app/pkg/logger"
 	"github.com/nightfury1204/movie-search-app/pkg/omdb"
 	"github.com/pkg/errors"
@@ -20,12 +22,18 @@ func Run(cfg *Config) error {
 		return errors.New("provided config is nil")
 	}
 
+	log := logger.GetLogger()
+
 	// initialize omdb client
 	omdb.Initialize(cfg.OMDBAPIUrl, cfg.OMDBAPIToken)
 
+	handler := routes.NewMacaron()
+	log.Info("Registering routes")
+	routes.RegisterRoutes(handler)
+
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", cfg.Port),
-		Handler: http.DefaultServeMux,
+		Handler: handler,
 	}
 
 	// notify the interrupt signal
@@ -36,7 +44,7 @@ func Run(cfg *Config) error {
 			panic(err)
 		}
 	}()
-	log := logger.GetLogger()
+
 	log.Info("Server Started", "listening port", cfg.Port)
 
 	<-cfg.StopCh
