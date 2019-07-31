@@ -8,19 +8,25 @@
 {{ template "navbar" .}}
 
 <div class="container">
-
-  {{ range .Search }}
-    {{ template "movie_item" .}}
+  {{ if .Error}}
+    
+    <h4> <strong>Error:</strong> {{ .Error }}</h4>
+  
+  {{ else }}
+    
+    {{ range .Search }}
+      {{ template "movie_item" .}}
+    {{ end }}
+    
+    {{ template "pagination" .}}
+  
   {{ end }}
 
- {{ template "pagination" .}}
-
- {{ template "modal" . }}
-
+  {{ template "modal" . }}
 
 </div>
 
-    <script>
+  <script>
     function addItemToMyList(id) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -45,7 +51,7 @@
       xhttp.open("GET", "/movie/details/"+id, true);
       xhttp.send();
     }
-    </script>
+  </script>
 
 </body>
 

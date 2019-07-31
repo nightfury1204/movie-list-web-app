@@ -25,6 +25,15 @@ type LoginForm struct {
 	Password string `form:"password" binding:"Required"`
 }
 
+type TempateData struct {
+	Search       []omdb.MovieItem
+	CurrentPage  string
+	PreviousPage string
+	NextPage     string
+	Keyword      string
+	Error        string
+}
+
 // NewMacaron initializes Macaron instance.
 func NewMacaron() *macaron.Macaron {
 	m := macaron.Classic()
@@ -52,7 +61,6 @@ func RegisterRoutes(m *macaron.Macaron) {
 			ctx.HTML(http.StatusOK, "login")
 		})
 	})
-	m.Post("/login", binding.Bind(LoginForm{}), Login)
 	m.Get("/logout", Logout)
 }
 
@@ -96,15 +104,15 @@ func Home(ctx *macaron.Context) {
 // Search will fetch the movie search results
 func Search(ctx *macaron.Context) {
 	log := logger.GetLogger().WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "search")
+	tmplData := TempateData{}
 
 	s := ctx.Req.URL.Query().Get("s")
 	if len(s) == 0 {
 		err := errors.New("search value is not provided")
 		log.Error(err, "failed to search movie")
-		ctx.HTML(http.StatusBadRequest, "search_error", map[string]string{
-			"error":   err.Error(),
-			"keyword": s,
-		})
+		tmplData.Error = err.Error()
+		tmplData.Keyword = s
+		ctx.HTML(http.StatusBadRequest, "search_result", tmplData)
 		return
 	}
 
@@ -120,36 +128,27 @@ func Search(ctx *macaron.Context) {
 	}
 	if err != nil {
 		log.Error(err, "failed to search movie")
-		ctx.HTML(status, "search_error", map[string]string{
-			"error":   err.Error(),
-			"keyword": s,
-		})
+		tmplData.Error = err.Error()
+		tmplData.Keyword = s
+		ctx.HTML(status, "search_result", tmplData)
 		return
 	}
 
-	tempateData := struct {
-		Search []omdb.MovieItem
-		CurrentPage string
-		PreviousPage string
-		NextPage string
-		Keyword string
-	}{
-		Search: searchResp.Search,
-		Keyword: s,
-		CurrentPage: page,
-	}
+	tmplData.Search = searchResp.Search
+	tmplData.Keyword = s
+	tmplData.CurrentPage = page
 
 	pageNo, err := strconv.Atoi(page)
 	if err != nil {
 		log.Error(err, "failed convert string to integer")
 	} else if pageNo > 1 {
-		tempateData.PreviousPage = strconv.Itoa(pageNo-1)
+		tmplData.PreviousPage = strconv.Itoa(pageNo - 1)
 	}
 	if len(searchResp.Search) > 0 {
-		tempateData.NextPage = strconv.Itoa(pageNo+1)
+		tmplData.NextPage = strconv.Itoa(pageNo + 1)
 	}
 
-	ctx.HTML(http.StatusOK, "search_result", tempateData)
+	ctx.HTML(http.StatusOK, "search_result", tmplData)
 }
 
 // MovieDetails will fetch the movie details
@@ -160,8 +159,8 @@ func MovieDetails(ctx *macaron.Context) {
 	if len(imdbID) == 0 {
 		err := errors.New("imdb id is not provided")
 		log.Error(err, "failed to get movie details")
-		ctx.HTML(http.StatusBadRequest, "movie_details_error", map[string]string{
-			"error": err.Error(),
+		ctx.HTML(http.StatusBadRequest, "movie_details", map[string]string{
+			"Error": err.Error(),
 		})
 		return
 	}
@@ -173,9 +172,8 @@ func MovieDetails(ctx *macaron.Context) {
 	}
 	if err != nil {
 		log.Error(err, "failed to get movie details")
-		ctx.HTML(status, "movie_details_error", map[string]string{
-			"error": err.Error(),
-		})
+		movieDetails.Error = err.Error()
+		ctx.HTML(status, "movie_details", movieDetails)
 		return
 	}
 
@@ -202,7 +200,7 @@ func RemoveFromMyMovieList(ctx *macaron.Context) {
 	ctx.Redirect("/mylist/movies")
 }
 
-func AddToMyMovieList( ctx *macaron.Context) {
+func AddToMyMovieList(ctx *macaron.Context) {
 	userID := ctx.Data[UserIDKey].(string)
 	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "add to my movie list")
 	imdbID := ctx.Params(":id")
