@@ -1,0 +1,15 @@
+{{ define "show_movie_item" }}
+
+<div class="card">
+  <div class="card-body">
+    <h2> <a href="" onclick='showMovieDetails("{{ .ImdbID}}", "{{ .Title}}")' data-toggle="modal" data-target="#myModal"> {{ .Title }}</a></h2>
+
+    <form action="/mylist/movies/delete/{{ .ImdbID }}" method="post">
+        <button type="submit" class="btn btn-default"> Remove </button>
+    </form>
+
+    <img src="{{ .Poster }}" class="img-rounded" alt="{{ .Title }}" style="height: 120px;width: 120px;">
+  </div>
+</div>
+
+{{ end }}

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/nightfury1204/movie-search-app/models"
@@ -30,18 +29,20 @@ func NewMacaron() *macaron.Macaron {
 	m := macaron.Classic()
 	m.Use(macaron.Renderer())
 	m.Use(session.Sessioner())
+	m.Use(macaron.Static("assets"))
 	return m
 }
 
 func RegisterRoutes(m *macaron.Macaron) {
 	m.Get("/", Authenticate, Home)
 	m.Get("/search", Authenticate, Search)
-	m.Get("/movie/details", Authenticate, MovieDetails)
+	m.Get("/movie/details/:id", Authenticate, MovieDetails)
 
 	m.Group("/mylist/movies", func() {
 		m.Get("", GetMyMovieList)
 		m.Post("/:id", AddToMyMovieList)
-		m.Delete("/:id", RemoveFromMyMovieList)
+		// html form can not set 'delete' request, that's why use post instead
+		m.Post("/delete/:id", RemoveFromMyMovieList)
 	}, Authenticate)
 
 	m.Group("/login", func() {
@@ -132,7 +133,7 @@ func Search(ctx *macaron.Context) {
 func MovieDetails(ctx *macaron.Context) {
 	log := logger.GetLogger().WithValues(UserIDKey, ctx.Data[UserIDKey].(string), "operation", "movie details")
 
-	imdbID := ctx.Req.URL.Query().Get("i")
+	imdbID := ctx.Params(":id")
 	if len(imdbID) == 0 {
 		err := errors.New("imdb id is not provided")
 		log.Error(err, "failed to get movie details")
@@ -175,21 +176,27 @@ func RemoveFromMyMovieList(ctx *macaron.Context) {
 
 	log.V(3).Info("removing movie from the list", "imdbID", imdbID)
 	models.RemoveFromMyMovieList(userID, imdbID)
-	ctx.Redirect("/mylist/movies", http.StatusOK)
+	ctx.Redirect("/mylist/movies")
 }
 
-func AddToMyMovieList(ctx *macaron.Context) {
+func AddToMyMovieList( ctx *macaron.Context) {
 	userID := ctx.Data[UserIDKey].(string)
 	log := logger.GetLogger().WithValues(UserIDKey, userID, "operation", "add to my movie list")
+	imdbID := ctx.Params(":id")
 
-	item := &omdb.MovieItem{}
-	r := ctx.Req.Request
-	defer r.Body.Close()
-	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
-		log.Error(err, "failed to unmarshal movie item")
-		ctx.JSON(http.StatusBadRequest, "add_movie_failed")
+	log.V(3).Info("Get movie details", "imdbID", imdbID)
+	movieDetails, status, err := omdb.GetMovieDetails(imdbID)
+	if movieDetails != nil && movieDetails.Error != "" {
+		status = http.StatusBadRequest
+		err = errors.New(movieDetails.Error)
+	}
+	if err != nil {
+		log.Error(err, "failed to get movie details")
+		ctx.JSON(status, err.Error())
+		return
 	}
 
-	log.V(3).Info("Adding movie in the list", "imdbID", item.ImdbID)
-	models.AddToMyMovieList(userID, *item)
+	log.V(3).Info("Adding movie in the list", "imdbID", imdbID)
+	models.AddToMyMovieList(userID, *movieDetails)
+	ctx.JSON(http.StatusOK, "movie added successfully")
 }

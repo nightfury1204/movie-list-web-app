@@ -7,18 +7,18 @@ import (
 )
 
 var (
-	inmem = map[string]map[string]omdb.MovieItem{}
+	inmem = map[string]map[string]omdb.MovieDetails{}
 	lock  sync.Mutex
 )
 
-func AddToMyMovieList(userID string, itm omdb.MovieItem) {
+func AddToMyMovieList(userID string, movieDetails omdb.MovieDetails) {
 	lock.Lock()
 	defer lock.Unlock()
 	if _, exists := inmem[userID]; exists {
-		inmem[userID][itm.ImdbID] = itm
+		inmem[userID][movieDetails.ImdbID] = movieDetails
 	} else {
-		inmem[userID] = map[string]omdb.MovieItem{
-			itm.ImdbID: itm,
+		inmem[userID] = map[string]omdb.MovieDetails{
+			movieDetails.ImdbID: movieDetails,
 		}
 	}
 }
@@ -33,10 +33,10 @@ func RemoveFromMyMovieList(userID string, imdbID string) {
 	}
 }
 
-func GetMyMovieList(userID string) []omdb.MovieItem {
+func GetMyMovieList(userID string) []omdb.MovieDetails {
 	lock.Lock()
 	defer lock.Unlock()
-	mlist := []omdb.MovieItem{}
+	mlist := []omdb.MovieDetails{}
 	if movieList, exists := inmem[userID]; exists {
 		for _, itm := range movieList {
 			mlist = append(mlist, itm)

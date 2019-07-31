@@ -8,11 +8,11 @@ type SearchResponse struct {
 }
 
 type MovieItem struct {
-	Title  string `json:"Title,omitempty"`
-	Year   string `json:"Year,omitempty"`
-	ImdbID string `json:"imdbID,omitempty"`
-	Type   string `json:"Type,omitempty"`
-	Poster string `json:"Poster,omitempty"`
+	Title  string `json:"Title,omitempty" form:"title"`
+	Year   string `json:"Year,omitempty" form:"year"`
+	ImdbID string `json:"imdbID,omitempty" form:"imdbID"`
+	Type   string `json:"Type,omitempty" form:"type"`
+	Poster string `json:"Poster,omitempty" form:"poster"`
 }
 
 type MovieDetails struct {
