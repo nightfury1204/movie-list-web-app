@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/nightfury1204/movie-search-app/models"
+	"github.com/nightfury1204/movie-listing-app/models"
 
 	"github.com/pkg/errors"
 
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/session"
-	"github.com/nightfury1204/movie-search-app/pkg/logger"
-	"github.com/nightfury1204/movie-search-app/pkg/omdb"
+	"github.com/nightfury1204/movie-listing-app/pkg/logger"
+	"github.com/nightfury1204/movie-listing-app/pkg/omdb"
 	"gopkg.in/macaron.v1"
 )
 

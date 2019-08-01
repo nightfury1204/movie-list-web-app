@@ -3,7 +3,7 @@ package models
 import (
 	"sync"
 
-	"github.com/nightfury1204/movie-search-app/pkg/omdb"
+	"github.com/nightfury1204/movie-listing-app/pkg/omdb"
 )
 
 var (

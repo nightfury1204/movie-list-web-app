@@ -8,7 +8,7 @@ import (
 
 func NewRootCmd() *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Use:               "movie-search-app [command]",
+		Use:               "movie-listing-app [command]",
 		Short:             `web app for searching movie by title`,
 		DisableAutoGenTag: true,
 	}

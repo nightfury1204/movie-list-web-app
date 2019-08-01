@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/nightfury1204/movie-search-app/cmds"
-	"github.com/nightfury1204/movie-search-app/pkg/logger"
+	"github.com/nightfury1204/movie-listing-app/cmds"
+	"github.com/nightfury1204/movie-listing-app/pkg/logger"
 	"k8s.io/klog"
 )
 

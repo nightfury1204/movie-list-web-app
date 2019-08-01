@@ -1,4 +1,4 @@
-module github.com/nightfury1204/movie-search-app
+module github.com/nightfury1204/movie-listing-app
 
 go 1.12
 
