@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nightfury1204/movie-search-app/routes"
+	"github.com/nightfury1204/movie-listing-app/routes"
 
-	"github.com/nightfury1204/movie-search-app/pkg/logger"
-	"github.com/nightfury1204/movie-search-app/pkg/omdb"
+	"github.com/nightfury1204/movie-listing-app/pkg/logger"
+	"github.com/nightfury1204/movie-listing-app/pkg/omdb"
 	"github.com/pkg/errors"
 )
 

@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"github.com/nightfury1204/movie-search-app/pkg/server"
+	"github.com/nightfury1204/movie-listing-app/pkg/server"
 	"github.com/spf13/cobra"
 )
 

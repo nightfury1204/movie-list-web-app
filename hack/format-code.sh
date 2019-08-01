@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pushd $GOPATH/src/github.com/nightfury1204/movie-search-app
+pushd $GOPATH/src/github.com/nightfury1204/movie-listing-app
 
 echo "gofmt -s -w *.go cmds models pkg routes"
 gofmt -s -w *.go cmds models pkg routes
